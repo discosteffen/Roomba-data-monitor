@@ -67,7 +67,16 @@ var temp;
 
 var charge = 0;
 var chargeState = 0;
+var maxCharge = 0;
+var current = 0;
+var voltage = 0;
+// need to be added still
+var charger;
+var docked;
+
+
 var leftBumper;
+
 var rightBumper;
 var lightBumper;
 // lightBumper are all true false sensors.
@@ -88,6 +97,10 @@ var proxRight;
 var motorLeft = 0;
 var motorRight = 0;
 
+var encoderLeft = 0;
+var encoderRight = 0;
+
+var mode = 0;
 /*app.get('/', function(req, res){
   res.sendfile('App.html');
   console.log('HTML sent to client');
@@ -164,6 +177,15 @@ io.on('connection', function (socket) { // Notify for a new connection and pass 
 				socket.emit('proxCenterRight', proxCenterRight); // Emit on the opened socket.
 				socket.emit('proxFrontRight', proxFrontRight); // Emit on the opened socket.
 				socket.emit('proxRight', proxRight); // Emit on the opened socket.
+        socket.emit('chargeState', chargeState);
+        socket.emit('maxCharge', maxCharge);
+        socket.emit('motorLeft', motorLeft);
+        socket.emit('motorRight', motorRight);
+        socket.emit('current', current);
+        socket.emit('voltage', voltage);
+        socket.emit('docked', docked);
+        socket.emit('charger', charger);
+        socket.emit('mode', mode);
     }, 100);
 });
 
@@ -188,13 +210,16 @@ function updateData(){
 	temp = robot.data.temperature;
 	console.log("Temp:" + robot.data.temperature);
 
-console.log("all data test: " + robot.data);
+  //console.log("all data test: " + robot.data);
 	//console.log("Charging State:" + robot.data.chargeState);
 
 	// battery data
 	charge = robot.data.charge;
 	//console.log("Current charge:" + robot.data.charge);
-
+  chargeState = robot.data.chargeState;
+  maxCharge = robot.data.maxCharge;
+  current = robot.data.current;
+  voltage = robot.data.current;
 	// bumper sensors
 	leftBumper = robot.data.bumpLeft;
 	rightBumper = robot.data.bumpRight;
@@ -212,12 +237,12 @@ console.log("all data test: " + robot.data);
 	lightBumpFrontRight = robot.data.lightBumpFrontRight;
 	lightBumpRight = robot.data.lightBumpRight;
 
-	console.log(lightBumpLeft);
+/*	console.log(lightBumpLeft);
 	console.log(lightBumpFrontLeft);
 	console.log(lightBumpCenterLeft);
 	console.log(lightBumpCenterRight);
 	console.log(lightBumpFrontRight);
-	console.log(lightBumpRight);
+	console.log(lightBumpRight);*/
 
 	// proximity sensors //0 - 4095
 	proxLeft = robot.data.proxLeft;
@@ -227,13 +252,22 @@ console.log("all data test: " + robot.data);
 	proxFrontRight = robot.data.proxFrontRight;
 	proxRight = robot.data.proxRight ;
 
-	console.log(proxLeft);
+/*	console.log(proxLeft);
 	console.log(proxFrontLeft);
 	console.log(proxCenterLeft);
 	console.log(proxCenterRight);
 	console.log(proxFrontRight);
 	console.log(proxRight);
+*/
+  charger = robot.data.charger;
+  docked = robot.data.docked;
 
+  mode = robot.data.mode;
+
+  encoderLeft = robot.data.encoderLeft;
+  encoderRight = robot.data.encoderRight;
+  console.log(encoderLeft);
+	console.log(encoderRight);
 
 }
 
@@ -343,23 +377,32 @@ function main(r) {
 	}
 
 	forward = function(){
-			robot.driveSpeed(50,50);
+      motorLeft = 100;
+      motorRight = 100;
+			robot.driveSpeed(100,100);
 	}
 
 	backward = function(){
-			robot.driveSpeed(-50,-50);
+    motorLeft = -100;
+    motorRight = -100;
+			robot.driveSpeed(-100,-100);
 	}
 
 	turnRight = function(){
-		robot.driveSpeed(50,-50);
+    motorLeft = 100;
+    motorRight = -100;
+		robot.driveSpeed(100,-100);
 	}
 
 	turnLeft = function(){
-		robot.driveSpeed(-50,50);
+    motorLeft = -100;
+    motorRight = 100;
+		robot.driveSpeed(-100,100);
 	}
 
-
 	stop = function(){
+    motorLeft = 0;
+    motorRight = 0;
 		robot.driveSpeed(0,0);
 	}
 

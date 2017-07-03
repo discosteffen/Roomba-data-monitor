@@ -50,6 +50,14 @@
         border-bottom: 2px solid black;
       }
 
+      #livefeed{
+      float: right;
+      top: 30px;
+      right: 15px;
+      border: 1px solid black;
+    }
+
+
     </style>
   </head>
   <body>
@@ -58,17 +66,23 @@
     <div id="roombamonitor">Roomba Data Monitor</div>
 
     <div id="general"><h2>General Data:</h2>
-      <br>
+      <img src="http://192.168.1.180:9000/?action=stream" width="480" id="livefeed" /><br>
       Current State: driving / docking / charging<br><br>
       <h3>Data:</h3>
       <br>Motor speed:<br>
-      Left: <br>
-      Right: <br>
+      Left: <span id="speedLeft"></span><br>
+      Right: <span id="speedRight"></span><br>
       <br><div id="temperature">Current Temp: <span id="incremental"></span></div>
       <div id="chargeleft">Charge: <span id="charge"></span></div>
+      chargeState: <span id="chargeState"></span><br/>
+      maxCharge: <span id="maxCharge"></span><br/>
+      current: <span id="current"></span><br/>
+      voltage: <span id="voltage"></span><br/>
+      docked: <span id="docked"></span><br/>
+      charger: <span id="charger"></span><br/>
+      mode: <span id="mode">0</span><br/>
       <br>
       Distance traveled:<br>
-
 
     </div>
 
@@ -205,6 +219,12 @@
         socket.on('charge', function (value) { // When a 'update-value' event is received, execute the following code.
           $('#charge').html(value);
         });
+        socket.on('chargeState', function (value) { // When a 'update-value' event is received, execute the following code.
+          $('#chargeState').html(value);
+        });
+        socket.on('maxCharge', function (value) { // When a 'update-value' event is received, execute the following code.
+          $('#maxCharge').html(value);
+        });
         socket.on('temp', function (value) { // When a 'update-value' event is received, execute the following code.
           $('#incremental').html(value);
         });
@@ -227,8 +247,27 @@
         socket.on('proxRight', function (value) { // When a 'update-value' event is received, execute the following code.
           $('#proxRight').html(value);
         });
-
-
+        socket.on('motorRight', function (value) { // When a 'update-value' event is received, execute the following code.
+          $('#speedRight').html(value);
+        });
+        socket.on('motorLeft', function (value) { // When a 'update-value' event is received, execute the following code.
+          $('#speedLeft').html(value);
+        });
+        socket.on('current', function (value) { // When a 'update-value' event is received, execute the following code.
+          $('#current').html(value);
+        });
+        socket.on('voltage', function (value) { // When a 'update-value' event is received, execute the following code.
+          $('#voltage').html(value);
+        });
+        socket.on('docked', function (value) { // When a 'update-value' event is received, execute the following code.
+          $('#docked').html(value);
+        });
+        socket.on('charger', function (value) { // When a 'update-value' event is received, execute the following code.
+          $('#charger').html(value);
+        });
+        socket.on('mode', function (value) { // When a 'update-value' event is received, execute the following code.
+            $('#mode').html(value);
+        });
 
     </script>
 
