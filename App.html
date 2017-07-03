@@ -2,87 +2,33 @@
 <html>
   <head>
     <title>Roomba Data Monitor</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 24px Helvetica, Arial; }
-
-      #roombamonitor{
-        background-color: black;
-        font-size: 2em;
-        color: white;
-        text-align: center;
-      }
-
-      #general{
-        padding: 25px;
-        width: 100%;
-        border: 1px solid black;
-        min-height: 400px;
-      }
-
-      #bumpers{
-        float:left;
-        padding: 25px;
-        width: 50%;
-        border: 1px solid black;
-        min-height: 700px;
-      }
-
-
-      #proximity{
-        float:left;
-
-        padding: 25px;
-
-        width: 50%;
-        border: 1px solid black;
-        min-height: 700px;
-
-      }
-
-      .proxAlignRight{
-        float: right;
-        margin-right: 20%;
-      }
-
-      h2{
-        text-align: center;
-        border-bottom: 2px solid black;
-      }
-
-      #livefeed{
-      float: right;
-      top: 30px;
-      right: 15px;
-      border: 1px solid black;
-    }
-
-
-    </style>
-  </head>
+    <link rel="stylesheet" type="text/css" href="style/style.css">  </head>
   <body>
-
-
     <div id="roombamonitor">Roomba Data Monitor</div>
 
-    <div id="general"><h2>General Data:</h2>
-      <img src="http://192.168.1.180:9000/?action=stream" width="480" id="livefeed" /><br>
-      Current State: driving / docking / charging<br><br>
-      <h3>Data:</h3>
-      <br>Motor speed:<br>
-      Left: <span id="speedLeft"></span><br>
-      Right: <span id="speedRight"></span><br>
-      <br><div id="temperature">Current Temp: <span id="incremental"></span></div>
-      <div id="chargeleft">Charge: <span id="charge"></span></div>
-      chargeState: <span id="chargeState"></span><br/>
-      maxCharge: <span id="maxCharge"></span><br/>
-      current: <span id="current"></span><br/>
-      voltage: <span id="voltage"></span><br/>
-      docked: <span id="docked"></span><br/>
-      charger: <span id="charger"></span><br/>
-      mode: <span id="mode">0</span><br/>
-      <br>
-      Distance traveled:<br>
+      <div id="general"><h2>General Data:</h2>
+        <img src="http://192.168.1.180:9000/?action=stream" width="480" id="livefeed" /><br>
+        Current State: driving / docking / charging<br><br>
+
+        <div id="left">
+        <br>Motor speed:<br>
+        Left: <span id="speedLeft"></span><br>
+        Right: <span id="speedRight"></span><br>
+        Distance traveled:<br>
+        docked: <span id="docked"></span><br/>
+        charger: <span id="charger"></span><br/>
+        mode: <span id="mode">0</span><br/>
+      </div>
+      <div id="right">
+        <br><div id="temperature">Current Temp: <span id="incremental"></span></div>
+        <div id="chargeleft">Charge: <span id="charge"></span></div>
+        chargeState: <span id="chargeState"></span><br/>
+        maxCharge: <span id="maxCharge"></span><br/>
+        current: <span id="current"></span><br/>
+        voltage: <span id="voltage"></span><br/>
+        <br>
+      </div>
+
 
     </div>
 
@@ -97,18 +43,17 @@
         Light Bumper Center Right: <span id="lightBumpCenterRight">false</span><br>
         Light Bumper Right: <span id="lightBumpFrontRight">false</span><br>
         Light Bumper Right: <span id="lightBumpRight">false</span><br>
-<br><br>
-
+        <br><br>
       </div>
 
       <div id="proximity"><h2>Proximity Sensors</h2>
         <br>
-        Right Proximity Sensor: <span class="proxAlignRight" id="proxRight"></span><br>
-        Right Front Proximity Sensor: <span class="proxAlignRight" id="proxFrontRight"></span><br>
-        Right Center Proximity Sensor: <span class="proxAlignRight" id="proxCenterRight"></span><br>
-        Left Center Proximity Sensor: <span class="proxAlignRight" id="proxCenterLeft">bleh</span><br>
-        Left Front Proximity Sensor: <span class="proxAlignRight" id="proxFrontLeft">blah</span><br>
-        Left Proximity Sensor: <span class="proxAlignRight" id="proxLeft"></span><br>
+        Right Proximity Sensor: <span class="proxAlignRight" id="proxRight">0</span><br>
+        Right Front Proximity Sensor: <span class="proxAlignRight" id="proxFrontRight">0</span><br>
+        Right Center Proximity Sensor: <span class="proxAlignRight" id="proxCenterRight">0</span><br>
+        Left Center Proximity Sensor: <span class="proxAlignRight" id="proxCenterLeft">0</span><br>
+        Left Front Proximity Sensor: <span class="proxAlignRight" id="proxFrontLeft">0</span><br>
+        Left Proximity Sensor: <span class="proxAlignRight" id="proxLeft">0</span><br>
       </div>
 
     </div>
@@ -270,19 +215,6 @@
         });
 
     </script>
-
-
-
-  <!--script>
-  $(document).ready(function()
-    {
-      var socket = io.connect();
-          socket.on('news', function (data) {
-            console.log(data);
-          });
-        });
-  </script-->
-
 
   </body>
 </html>
