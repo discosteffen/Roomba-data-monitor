@@ -1,0 +1,249 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Roomba Data Monitor</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 24px Helvetica, Arial; }
+
+      #roombamonitor{
+        background-color: black;
+        font-size: 2em;
+        color: white;
+        text-align: center;
+      }
+
+      #general{
+        padding: 25px;
+        width: 100%;
+        border: 1px solid black;
+        min-height: 400px;
+      }
+
+      #bumpers{
+        float:left;
+        padding: 25px;
+        width: 50%;
+        border: 1px solid black;
+        min-height: 700px;
+      }
+
+
+      #proximity{
+        float:left;
+
+        padding: 25px;
+
+        width: 50%;
+        border: 1px solid black;
+        min-height: 700px;
+
+      }
+
+      .proxAlignRight{
+        float: right;
+        margin-right: 20%;
+      }
+
+      h2{
+        text-align: center;
+        border-bottom: 2px solid black;
+      }
+
+    </style>
+  </head>
+  <body>
+
+
+    <div id="roombamonitor">Roomba Data Monitor</div>
+
+    <div id="general"><h2>General Data:</h2>
+      <br>
+      Current State: driving / docking / charging<br><br>
+      <h3>Data:</h3>
+      <br>Motor speed:<br>
+      Left: <br>
+      Right: <br>
+      <br><div id="temperature">Current Temp: <span id="incremental"></span></div>
+      <div id="chargeleft">Charge: <span id="charge"></span></div>
+      <br>
+      Distance traveled:<br>
+
+
+    </div>
+
+    <div id="container">
+
+      <div id="bumpers"><h2>Bumper data</h2>
+        <br><div id="rightBumper">Right Bumper: <span id="rBump">false</span></div>
+        <div id="leftBumper">Left Bumper: <span id="lBump">false</span></div>
+        Light Bumper Left: <span id="lightBumpLeft">false</span><br>
+        Light Bumper Front Left: <span id="lightBumpFrontLeft">false</span><br>
+        Light Bumper Center Left: <span id="lightBumpCenterLeft">false</span><br>
+        Light Bumper Center Right: <span id="lightBumpCenterRight">false</span><br>
+        Light Bumper Right: <span id="lightBumpFrontRight">false</span><br>
+        Light Bumper Right: <span id="lightBumpRight">false</span><br>
+<br><br>
+
+      </div>
+
+      <div id="proximity"><h2>Proximity Sensors</h2>
+        <br>
+        Right Proximity Sensor: <span class="proxAlignRight" id="proxRight"></span><br>
+        Right Front Proximity Sensor: <span class="proxAlignRight" id="proxFrontRight"></span><br>
+        Right Center Proximity Sensor: <span class="proxAlignRight" id="proxCenterRight"></span><br>
+        Left Center Proximity Sensor: <span class="proxAlignRight" id="proxCenterLeft">bleh</span><br>
+        Left Front Proximity Sensor: <span class="proxAlignRight" id="proxFrontLeft">blah</span><br>
+        Left Proximity Sensor: <span class="proxAlignRight" id="proxLeft"></span><br>
+      </div>
+
+    </div>
+
+
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+
+    function redBump(divid) {
+        document.getElementById(divid).style.color = "red";
+    }
+    function greenBump(divid) {
+        document.getElementById(divid).style.color = "green";
+    }
+
+      var socket = io();
+        socket.on('rBump', function (value) { // When a 'update-value' event is received, execute the following code.
+            //console.log('received new value', value);
+            if(value == true){
+              $('#rBump').html(value);
+              redBump('rBump');
+            }
+            else{
+              $('#rBump').html('false');
+              greenBump('rBump');
+            }
+        });
+        socket.on('lBump', function (value) { // When a 'update-value' event is received, execute the following code.
+            //console.log('received new value', value);
+            if(value == true){
+              $('#lBump').html(value);
+              redBump('lBump');
+            }
+            else{
+              $('#lBump').html('false');
+              greenBump('lBump');
+            }
+        });
+        socket.on('lightBumpCenterRight', function (value) { // When a 'update-value' event is received, execute the following code.
+            //console.log('received new value', value);
+            if(value == true){
+              $('#lightBumpCenterRight').html(value);
+              redBump('lightBumpCenterRight');
+            }
+            else{
+              $('#lightBumpCenterRight').html('false');
+              greenBump('lightBumpCenterRight');
+            }
+        });
+        socket.on('lightBumpCenterLeft', function (value) { // When a 'update-value' event is received, execute the following code.
+            //console.log('received new value', value);
+            if(value == true){
+              $('#lightBumpCenterLeft').html(value);
+              redBump('lightBumpCenterLeft');
+            }
+            else{
+              $('#lightBumpCenterLeft').html('false');
+              greenBump('lightBumpCenterLeft');
+            }
+        });
+        socket.on('lightBumpFrontLeft', function (value) { // When a 'update-value' event is received, execute the following code.
+            //console.log('received new value', value);
+            if(value == true){
+              $('#lightBumpFrontLeft').html(value);
+              redBump('lightBumpFrontLeft');
+            }
+            else{
+              $('#lightBumpFrontLeft').html('false');
+              greenBump('lightBumpFrontLeft');
+            }
+        });
+        socket.on('lightBumpFrontRight', function (value) { // When a 'update-value' event is received, execute the following code.
+            //console.log('received new value', value);
+            if(value == true){
+              $('#lightBumpFrontRight').html(value);
+              redBump('lightBumpFrontRight');
+            }
+            else{
+              $('#lightBumpFrontRight').html('false');
+              greenBump('lightBumpFrontRight');
+            }
+        });
+        socket.on('lightBumpLeft', function (value) { // When a 'update-value' event is received, execute the following code.
+            //console.log('received new value', value);
+            if(value == true){
+              $('#lightBumpLeft').html(value);
+              redBump('lightBumpLeft');
+            }
+            else{
+              $('#lightBumpLeft').html('false');
+              greenBump('lightBumpLeft');
+            }
+        });
+        socket.on('lightBumpRight', function (value) { // When a 'update-value' event is received, execute the following code.
+            //console.log('received new value', value);
+            if(value == true){
+              $('#lightBumpRight').html(value);
+              redBump('lightBumpRight');
+            }
+            else{
+              $('#lightBumpRight').html('false');
+              greenBump('lightBumpRight');
+            }
+        });
+        socket.on('charge', function (value) { // When a 'update-value' event is received, execute the following code.
+          $('#charge').html(value);
+        });
+        socket.on('temp', function (value) { // When a 'update-value' event is received, execute the following code.
+          $('#incremental').html(value);
+        });
+        // prox sensors
+        socket.on('proxLeft', function (value) { // When a 'update-value' event is received, execute the following code.
+          $('#proxLeft').html(value);
+        });
+        socket.on('proxFrontLeft', function (value) { // When a 'update-value' event is received, execute the following code.
+          $('#proxFrontLeft').html(value);
+        });
+        socket.on('proxCenterLeft', function (value) { // When a 'update-value' event is received, execute the following code.
+          $('#proxCenterLeft').html(value);
+        });
+        socket.on('proxCenterRight', function (value) { // When a 'update-value' event is received, execute the following code.
+          $('#proxCenterRight').html(value);
+        });
+        socket.on('proxFrontRight', function (value) { // When a 'update-value' event is received, execute the following code.
+          $('#proxFrontRight').html(value);
+        });
+        socket.on('proxRight', function (value) { // When a 'update-value' event is received, execute the following code.
+          $('#proxRight').html(value);
+        });
+
+
+
+    </script>
+
+
+
+  <!--script>
+  $(document).ready(function()
+    {
+      var socket = io.connect();
+          socket.on('news', function (data) {
+            console.log(data);
+          });
+        });
+  </script-->
+
+
+  </body>
+</html>
