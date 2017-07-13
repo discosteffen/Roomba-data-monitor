@@ -1,57 +1,8 @@
 /*<legalstuff> This work is licensed under a GNU General Public License, v3.0. Visit http://gnu.org/licenses/gpl-3.0-standalone.html for details. </legalstuff>*/
 //Create2 DOCK Demo. Copyright (©) 2016, Pecacheu (Bryce Peterson).
 
-//NOTE: If you want to learn more about Roomba's modes, as well as the various
-//commands and sensors, I reccomend reading the official OI docs available here:
-//(http://www.irobotweb.com/~/media/MainSite/PDFs/About/STEM/Create/iRobot_Roomba_600_Open_Interface_Spec.pdf)
+// based on create2 npm module.
 
-/*Demonstates how you can take control of Roomba, even in passive mode, and how to combine
-user-control (in FULL mode) with built-in functions like autoDock (in PASSIVE mode).
-
-The robot starts in full mode [LINE 68] and drives forward unless bumper, wheel drop,
-or proximity sensors are triggered [LINE 112]. If the robot detects the home base
-[LINE 90], it exits user-control, entering PASSIVE mode, and starts automatic docking.
-(Screen should flash 'SEEK')
-
-There are several problems with relying on PASSIVE mode, however:
-
-1. We have no way of knowing if the docking procedure has stopped or encountered an error.
-We solve this by restarting docking mode if the state of the wheel drop sensors changes
-[LINE 102]. The bumper switches are ignored, as they don't interrupt the docking procedure.
-(Screen should flash 'RST' when docking is restarted)
-
-2. In PASSIVE mode, pressing the clean button starts the cleaning procedure (imagine that)
-The solution to this can be found in the preventDefault function [LINE 155]. If clean is pressed
-while docked, we allow clean to be enabled [LINE 95]. Otherwise, we call preventDefault to prevent
-a clean cycle from starting.
-
-When the robot detects power on docking contacks [LINE 98], we know we've docked successfully.
-We change to FULL mode for a second to display a message on the screen, then back to PASSIVE,
-since the robot won't charge in FULL mode. (Screen should quickly flash 'DOCK')
-
-As previously mentioned, we usually cancel presses to the clean button in PASSIVE mode,
-but when docked, we allow the robot to start a clean cycle. This is because when docked,
-the robot backs out and turns around (while making a cute beeping noise) before cleaning.
-From testing, this takes about 4.4 seconds, so as soon as the robot looses contact with
-the dock [LINE 100], we call setUndock, which sets a timer for 4.4 seconds [LINE 120].
-When the timer ends, it re-enables user-control, stopping the cleaning cycle
-before the actaul cleaning starts. Of course, we also play song 0 again [LINE 122].
-(Screen should scroll 'UNDOCK')
-
-The robot will also turn around 180 degrees whenever you enter 't' into the terminal
-[LINE 133], changing direction each time. If the function is called while a turn is
-already in progress [LINE 129], the robot will return to it's original angle. The
-angle is tracked with a variable that stores changes in angle delta [LINE 148].
-
-The only other thing that might be worth mentioning is the seemingly odd 2nd onChange
-callback at line 76. This function only runs once, the first time the onChange event
-is fired, and simply checks if the robot is already docked when the program starts.
-(Otherwise we'd start driving into the dock!)*/
-
-//TL;DR...
-//Robot moves, stops for obstacles, and auto-docks when it sees the base station.
-//Enter 't' into terminal to make robot turn 180 degrees.
-//Enter 's' into terminal to stop turning prematurely.
 
 //Web output
 //const express = require('express')
@@ -59,6 +10,33 @@ is fired, and simply checks if the robot is already docked when the program star
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var spawn = require('child_process').spawn,
+    ls    = spawn('python',['tracking.py']);
+
+// image variables
+var x;
+var y;
+var x2;
+var y2;
+    // outputs print lines
+    ls.stdout.on('data', function (data) {
+    var str = data
+    var x = str.toString().split(" ")[0];
+    var y = str.toString().split(" ")[1];
+
+//    x2 = x.substring(1,x.length-10);
+//    y2 = y.substring(0,y.length-11);
+
+    x2 = x.substring(1,4);
+    y2 = y.substring(0,3);
+
+
+      console.log("RealX: " + x2 + " RealY: " + y2 )
+    });
+
+    ls.stderr.on('data', function (data) {
+        console.log('stderr: ' + data);
+    });
 
 // output variables.
 
@@ -70,13 +48,10 @@ var chargeState = 0;
 var maxCharge = 0;
 var current = 0;
 var voltage = 0;
-// need to be added still
 var charger;
 var docked;
 
-
 var leftBumper;
-
 var rightBumper;
 var lightBumper;
 // lightBumper are all true false sensors.
@@ -86,6 +61,7 @@ var lightBumpCenterLeft;
 var lightBumpCenterRight;
 var lightBumpFrontRight;
 var lightBumpRight;
+
 // proximity sensors //0 - 4095
 var proxLeft;
 var proxFrontLeft;
@@ -101,6 +77,9 @@ var encoderLeft = 0;
 var encoderRight = 0;
 
 var mode = 0;
+
+
+var drivestate = 1;
 /*app.get('/', function(req, res){
   res.sendfile('App.html');
   console.log('HTML sent to client');
@@ -237,12 +216,6 @@ function updateData(){
 	lightBumpFrontRight = robot.data.lightBumpFrontRight;
 	lightBumpRight = robot.data.lightBumpRight;
 
-/*	console.log(lightBumpLeft);
-	console.log(lightBumpFrontLeft);
-	console.log(lightBumpCenterLeft);
-	console.log(lightBumpCenterRight);
-	console.log(lightBumpFrontRight);
-	console.log(lightBumpRight);*/
 
 	// proximity sensors //0 - 4095
 	proxLeft = robot.data.proxLeft;
@@ -252,13 +225,7 @@ function updateData(){
 	proxFrontRight = robot.data.proxFrontRight;
 	proxRight = robot.data.proxRight ;
 
-/*	console.log(proxLeft);
-	console.log(proxFrontLeft);
-	console.log(proxCenterLeft);
-	console.log(proxCenterRight);
-	console.log(proxFrontRight);
-	console.log(proxRight);
-*/
+
   charger = robot.data.charger;
   docked = robot.data.docked;
 
@@ -291,7 +258,6 @@ function main(r) {
 	robot.full(); var run = 1;
 
 	//setTimeout(function(){robot.showText("Hello World!", 500, true)}, 500);
-
 	//We'll play this song whenever entering user-control:
 	robot.setSong(0, [[72,32],[76,32],[79,32],[72,32]]);
 
@@ -331,7 +297,7 @@ function main(r) {
 
 	//Logic to Start and Stop Moving Robot:
 	function driveLogic() {
-
+    ballfollow();
 
 		//We're in user-control (FULL mode) and can control the robot. (Your main program would be here!)
 		if(robot.data.lightBumper || robot.data.bumpLeft || robot.data.bumpRight) robot.driveSpeed(0,0); //Disable motors.
@@ -340,7 +306,6 @@ function main(r) {
 		// this is where our output data could be.
 		// internal data
 		updateData();
-
 
 
 //		console.log("Current charge:" + robot.data.charge);
@@ -369,42 +334,6 @@ function main(r) {
 		}
 	}
 
-	//Stop turning when 's' is pressed:
-	stopTurn = function() {
-		if(robot.data.mode == 3 && drRun) { //If already turning:
-			run = 1; drRun = 0; driveLogic(); //Stop turn.
-		}
-	}
-
-	forward = function(){
-      motorLeft = 100;
-      motorRight = 100;
-			robot.driveSpeed(100,100);
-	}
-
-	backward = function(){
-    motorLeft = -100;
-    motorRight = -100;
-			robot.driveSpeed(-100,-100);
-	}
-
-	turnRight = function(){
-    motorLeft = 100;
-    motorRight = -100;
-		robot.driveSpeed(100,-100);
-	}
-
-	turnLeft = function(){
-    motorLeft = -100;
-    motorRight = 100;
-		robot.driveSpeed(-100,100);
-	}
-
-	stop = function(){
-    motorLeft = 0;
-    motorRight = 0;
-		robot.driveSpeed(0,0);
-	}
 
 	var angle = 0; //Count Angle Changes Using Encoders:
 	robot.onMotion = function() {
@@ -441,10 +370,62 @@ function handleInput(robot) {
 			turnLeft(); //Turn Robot.
 		} else if(text == "d") {
 			turnRight(); //Turn Robot.
-
-
-}
+    } else if(text == "ball") {
+      ballfollow();
+    }
 	});
+}
+
+
+//Stop turning when 's' is pressed:
+stopTurn = function() {
+  if(robot.data.mode == 3 && drRun) { //If already turning:
+    run = 1; drRun = 0; driveLogic(); //Stop turn.
+  }
+}
+
+forward = function(){
+    motorLeft = 100;
+    motorRight = 100;
+    robot.driveSpeed(100,100);
+}
+
+backward = function(){
+  motorLeft = -100;
+  motorRight = -100;
+    robot.driveSpeed(-100,-100);
+}
+
+
+turnRight = function(){
+  motorLeft = 100;
+  motorRight = -100;
+  robot.driveSpeed(100,-100);
+}
+
+turnLeft = function(){
+  motorLeft = -100;
+  motorRight = 100;
+  robot.driveSpeed(-100,100);
+}
+
+stop = function(){
+  motorLeft = 0;
+  motorRight = 0;
+  robot.driveSpeed(0,0);
+}
+
+
+ballfollow = function(){
+  if(x2 <= 150){
+    robot.driveSpeed(100,-100);
+  }
+  else if(x2 >= 450){
+    robot.driveSpeed(-100,100);
+  }
+  else {
+    robot.driveSpeed(50,50);
+  }
 }
 
 
