@@ -2,7 +2,72 @@
 <html>
   <head>
     <title>Roomba Data Monitor</title>
-    <link rel="stylesheet" type="text/css" href="style/style.css">  </head>
+    <!--link rel="stylesheet" type="text/css" href="style/style.css">  </head-->
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font: 24px Helvetica, Arial; }
+
+#roombamonitor{
+  background-color: black;
+  font-size: 2em;
+  color: white;
+  text-align: center;
+}
+
+#general{
+  padding: 25px;
+  width: 100%;
+  border: 1px solid black;
+  min-height: 400px;
+}
+
+#bumpers{
+  float:left;
+  padding: 25px;
+  width: 50%;
+  border: 1px solid black;
+  min-height: 700px;
+}
+
+
+#proximity{
+  float:left;
+
+  padding: 25px;
+
+  width: 50%;
+  border: 1px solid black;
+  min-height: 700px;
+
+}
+
+.proxAlignRight{
+  float: right;
+  margin-right: 20%;
+}
+
+h2{
+  text-align: center;
+  border-bottom: 2px solid black;
+}
+
+#livefeed{
+float: right;
+top: 30px;
+right: 15px;
+border: 1px solid black;
+}
+
+#left{
+float: left;
+width: 20%;
+}
+#right{
+float: left;
+width: 20%;
+}
+
+</style>
   <body>
     <div id="roombamonitor">Roomba Data Monitor</div>
 
