@@ -297,7 +297,7 @@ function main(r) {
 
 	//Logic to Start and Stop Moving Robot:
 	function driveLogic() {
-    ballfollow();
+//    ballfollow();
 
 		//We're in user-control (FULL mode) and can control the robot. (Your main program would be here!)
 		if(robot.data.lightBumper || robot.data.bumpLeft || robot.data.bumpRight) robot.driveSpeed(0,0); //Disable motors.
@@ -371,7 +371,13 @@ function handleInput(robot) {
 		} else if(text == "d") {
 			turnRight(); //Turn Robot.
     } else if(text == "ball") {
-      ballfollow();
+        for(i = 0; i < 100; i++){
+        setTimeout(function(){ballfollow()},i * 1000);
+      }
+    } else if(text == "wander") {
+      setTimeout(function(){robot.driveSpeed(100,100)},0);
+      setTimeout(function(){robot.driveSpeed(-100,-100)},2500);
+
     }
 	});
 }
@@ -418,10 +424,10 @@ stop = function(){
 
 ballfollow = function(){
   if(x2 <= 150){
-    robot.driveSpeed(100,-100);
+    robot.driveSpeed(-50,50);
   }
   else if(x2 >= 450){
-    robot.driveSpeed(-100,100);
+    robot.driveSpeed(50,-50);
   }
   else {
     robot.driveSpeed(50,50);
