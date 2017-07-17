@@ -80,6 +80,22 @@ var mode = 0;
 
 
 var drivestate = 1;
+
+var timeout = 1000;
+var action = function(){
+    if(x2 <= 150){
+	robot.driveSpeed(-50,50);
+    }
+    else if(x2 >= 450){
+	robot.driveSpeed(50,-50);
+    }
+    else {
+	robot.driveSpeed(50,50);
+    }
+    setTimeout(action, timeout)
+
+}
+
 /*app.get('/', function(req, res){
   res.sendfile('App.html');
   console.log('HTML sent to client');
@@ -104,16 +120,6 @@ io.on('connection', function(socket){
 });
 
 
-
-//io.sockets.emit('update-msg', { data: rightBumper});
-
-
-/*io.on('connection', function(socket){
-  socket.on('chat message', function(msg){io
-    io.emit('chat message', robot.data.bumpRight);
-  });
-});*/
-
 //var io = require("socket.io").listen(server)
 io.sockets.on('connection', function (socket) {
   socket.emit('news', { hello: rightBumper });
@@ -126,14 +132,6 @@ io.on('connection', function(socket){
     console.log('chat msg' + msg);
   });
 });
-
-
-/*io.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
-});*/
 
 // emitting data to web.
 io.on('connection', function (socket) { // Notify for a new connection and pass the socket as parameter.
@@ -202,11 +200,6 @@ function updateData(){
 	// bumper sensors
 	leftBumper = robot.data.bumpLeft;
 	rightBumper = robot.data.bumpRight;
-
-//	console.log("Left Bumper:" + robot.data.bumpLeft);
-//	console.log("Right Bumper:" + robot.data.bumpRight);
-//	socket.emit('right bumper', + robot.data.bumpRight);
-	//socket.emit('chat message', $('#m').val());
 
 /// ligth bump true false prox sensors
  	lightBumpLeft = robot.data.lightBumpLeft;
@@ -297,19 +290,12 @@ function main(r) {
 
 	//Logic to Start and Stop Moving Robot:
 	function driveLogic() {
-//    ballfollow();
-
 		//We're in user-control (FULL mode) and can control the robot. (Your main program would be here!)
 		if(robot.data.lightBumper || robot.data.bumpLeft || robot.data.bumpRight) robot.driveSpeed(0,0); //Disable motors.
 		else robot.driveSpeed(robot.data.dropLeft?0:0,robot.data.dropRight?0:0); //Enable motors if wheels are up.
 		if(robot.data.clean || robot.data.docked) {robot.driveSpeed(0,0);robot.start()} //Back to PASSIVE mode.
 		// this is where our output data could be.
-		// internal data
 		updateData();
-
-
-//		console.log("Current charge:" + robot.data.charge);
-
 	}
 
 	//Enable and disable undocking timer:
@@ -337,7 +323,7 @@ function main(r) {
 
 	var angle = 0; //Count Angle Changes Using Encoders:
 	robot.onMotion = function() {
-		updateData(); // had to place this here to get correct updated data. needs to be in the onmotion
+		updateData(); // had to place this here to get correct updated data for webmonitor
 		angle += robot.delta.angle; console.log("Angle:", angle);
 		if(((drAngle >= 0 && angle >= drAngle) || (drAngle < 0 && angle
 		<= drAngle)) && drRun) { drRun = 0; run = 1; driveLogic(); }
@@ -371,9 +357,9 @@ function handleInput(robot) {
 		} else if(text == "d") {
 			turnRight(); //Turn Robot.
     } else if(text == "ball") {
-        for(i = 0; i < 100; i++){
-        setTimeout(function(){ballfollow()},i * 1000);
-      }
+	action();
+
+//	setTimeout(function(){ballfollow()},i * 1000);
     } else if(text == "wander") {
       setTimeout(function(){robot.driveSpeed(100,100)},0);
       setTimeout(function(){robot.driveSpeed(-100,-100)},2500);
@@ -430,7 +416,7 @@ ballfollow = function(){
     robot.driveSpeed(50,-50);
   }
   else {
-    robot.driveSpeed(50,50);
+    robot.driveSpeed(0,0);
   }
 }
 

@@ -38,12 +38,21 @@ import sys
 
 
 #Padrão RED
-Hmin = 0
-Hmax = 120
-Smin = 171
+#Hmin = 0
+#Hmax = 120
+#Smin = 171
+#Smax = 255
+#Vmin = 126
+#Vmax = 255
+
+#green tape
+Hmin = 40
+Hmax = 80
+Smin = 100
 Smax = 255
-Vmin = 126
+Vmin = 100
 Vmax = 255
+
 
 
  # Cria-se um array de valores HSV(mínimo e máximo)
