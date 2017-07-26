@@ -1,48 +1,51 @@
-/*<legalstuff> This work is licensed under a GNU General Public License, v3.0. Visit http://gnu.org/licenses/gpl-3.0-standalone.html for details. </legalstuff>*/
-//Create2 DOCK Demo. Copyright (©) 2016, Pecacheu (Bryce Peterson).
+/***************************************
+|||||||||||||||||||||||||||||||||||||||
+This work is licensed under a GNU General
+Public License, v3.0.
+gnu.org/licenses/gpl-3.0-standalone.html
+Forked From Create2 DOCK Demo.
+Copyright (©) 2016, (Bryce Peterson)
+End of Web Output Commands
+|||||||||||||||||||||||||||||||||||||||
+***************************************/
 
-// based on create2 npm module.
+/*--------------------------------------
+             CONTRIBUTORS
+----------------------------------------
+   Steffen Haaker - - Andrew Nguyen
+--------------------------------------*/
 
+/***************************************/
+//Below are the Roomba output variables
 
-//Web output
-//const express = require('express')
-//const app = express()
+//Web output 'include' variables
 var app = require('express')();
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var io = require('socket.io')(http); // Socket connection
 var spawn = require('child_process').spawn,
-    ls    = spawn('python',['tracking.py']);
+ls    = spawn('python',['trackingwebcam.py']);
 
-// image variables
+// The variables below are for images
 var x;
 var y;
 var x2;
 var y2;
-    // outputs print lines
-    ls.stdout.on('data', function (data) {
-    var str = data
-    var x = str.toString().split(" ")[0];
-    var y = str.toString().split(" ")[1];
 
-//    x2 = x.substring(1,x.length-10);
-//    y2 = y.substring(0,y.length-11);
+ls.stdout.on('data', function (data) {
+  var str = data
+  var x = str.toString().split(" ")[0];
+  var y = str.toString().split(" ")[1];
+  x2 = x.substring(1,4);
+  y2 = y.substring(0,3);
+  console.log("RealX: " + x2 + " RealY: " + y2 )
+});
 
-    x2 = x.substring(1,4);
-    y2 = y.substring(0,3);
-
-
-      console.log("RealX: " + x2 + " RealY: " + y2 )
-    });
-
-    ls.stderr.on('data', function (data) {
-        console.log('stderr: ' + data);
-    });
-
-// output variables.
+ls.stderr.on('data', function (data) {
+  console.log('stderr: ' + data);
+});
 
 var hello = "hello there"
 var temp;
-
 var charge = 0;
 var chargeState = 0;
 var maxCharge = 0;
@@ -54,7 +57,9 @@ var docked;
 var leftBumper;
 var rightBumper;
 var lightBumper;
-// lightBumper are all true false sensors.
+
+//Title: LightBumpers
+//Type: boolean (true or false)
 var lightBumpLeft;
 var lightBumpFrontLeft;
 var lightBumpCenterLeft;
@@ -62,26 +67,26 @@ var lightBumpCenterRight;
 var lightBumpFrontRight;
 var lightBumpRight;
 
-// proximity sensors //0 - 4095
+//Title: Proximity Sensors
+//Type: int
+//Range: 0 - 4095
 var proxLeft;
 var proxFrontLeft;
 var proxCenterLeft;
 var proxCenterRight;
 var proxFrontRight;
 var proxRight;
-// speed reading.
+
+//Title: Motors
+//Type: int
+//Usage: Speed
 var motorLeft = 0;
 var motorRight = 0;
-
-var encoderLeft = 0;
-var encoderRight = 0;
-
-var mode = 0;
-
-
-var drivestate = 1;
-
-var timeout = 1000;
+var encoderLeft = 0;//Read the turns in the wheels
+var encoderRight = 0;//Read the turns in the wheels
+var mode = 0;//Control Mode: 1 is Auto -- 2 is Semi-Control -- 3 is Total Control
+var drivestate = 1;//Roomba Drivestate
+var timeout = 1000;//Constant integer timeout
 var action = function(){
     if(x2 <= 150){
 	robot.driveSpeed(-50,50);
@@ -95,15 +100,15 @@ var action = function(){
     setTimeout(action, timeout)
 
 }
-
-/*app.get('/', function(req, res){
-  res.sendfile('App.html');
-  console.log('HTML sent to client');
-});
-*/
-
+//End of Variable Declarations
+/***************************************/
+//--------------------------------------
+/***************************************/
+//Boilercode Rumba Communications
+//var io = require("socket.io").listen(server)
+//Var app = require('express')();
 app.get('/', function(req, res){
-  res.sendFile(__dirname + '/App.html');
+  res.sendFile(__dirname + '/App.html');//Sends the App.html file
 });
 
 io.on('connection', function(socket){
@@ -119,8 +124,6 @@ io.on('connection', function(socket){
   });
 });
 
-
-//var io = require("socket.io").listen(server)
 io.sockets.on('connection', function (socket) {
   socket.emit('news', { hello: rightBumper });
 	socket.emit('news', { hello: charge });
@@ -132,28 +135,27 @@ io.on('connection', function(socket){
     console.log('chat msg' + msg);
   });
 });
-
-// emitting data to web.
+//Emitting Data to the Web
+//Emit all of the following on the opened socket
 io.on('connection', function (socket) { // Notify for a new connection and pass the socket as parameter.
     console.log('new connection');
     setInterval(function () {
-//        console.log('emit new value', rightBumper);
-				socket.emit('temp', temp); // Emit on the opened socket.
-        socket.emit('rBump', rightBumper); // Emit on the opened socket.
-				socket.emit('lBump', leftBumper); // Emit on the opened socket.
-				socket.emit('lightBumpLeft', lightBumpLeft); // Emit on the opened socket.
-				socket.emit('lightBumpFrontLeft', lightBumpFrontLeft); // Emit on the opened socket.
-				socket.emit('lightBumpCenterLeft', lightBumpCenterLeft); // Emit on the opened socket.
-				socket.emit('lightBumpCenterRight', lightBumpCenterRight); // Emit on the opened socket.
-				socket.emit('lightBumpFrontRight', lightBumpFrontRight); // Emit on the opened socket.
-				socket.emit('lightBumpRight', lightBumpRight); // Emit on the opened socket.
-				socket.emit('charge', charge); // Emit on the opened socket.
-				socket.emit('proxLeft', proxLeft); // Emit on the opened socket.
-				socket.emit('proxFrontLeft', proxFrontLeft); // Emit on the opened socket.
-				socket.emit('proxCenterLeft', proxCenterLeft); // Emit on the opened socket.
-				socket.emit('proxCenterRight', proxCenterRight); // Emit on the opened socket.
-				socket.emit('proxFrontRight', proxFrontRight); // Emit on the opened socket.
-				socket.emit('proxRight', proxRight); // Emit on the opened socket.
+				socket.emit('temp', temp);
+        socket.emit('rBump', rightBumper);
+				socket.emit('lBump', leftBumper);
+				socket.emit('lightBumpLeft', lightBumpLeft);
+				socket.emit('lightBumpFrontLeft', lightBumpFrontLeft);
+				socket.emit('lightBumpCenterLeft', lightBumpCenterLeft);
+				socket.emit('lightBumpCenterRight', lightBumpCenterRight);
+				socket.emit('lightBumpFrontRight', lightBumpFrontRight);
+				socket.emit('lightBumpRight', lightBumpRight);
+				socket.emit('charge', charge);
+				socket.emit('proxLeft', proxLeft);
+				socket.emit('proxFrontLeft', proxFrontLeft);
+				socket.emit('proxCenterLeft', proxCenterLeft);
+				socket.emit('proxCenterRight', proxCenterRight);
+				socket.emit('proxFrontRight', proxFrontRight);
+				socket.emit('proxRight', proxRight);
         socket.emit('chargeState', chargeState);
         socket.emit('maxCharge', maxCharge);
         socket.emit('motorLeft', motorLeft);
@@ -165,43 +167,30 @@ io.on('connection', function (socket) { // Notify for a new connection and pass 
         socket.emit('mode', mode);
     }, 100);
 });
-
-
-
-// temperature
-/*io.on('connection', function (socket) { // Notify for a new connection and pass the socket as parameter.
-    console.log('new connection');
-    setInterval(function () {
-//        console.log('new temp', temp);
-        socket.emit('temp', temp); // Emit on the opened socket.
-    }, 1000);
-});*/
-
-
+//var http = require('http').Server(app);
 http.listen(3000, function(){
   console.log('listening on *:3000');
 });
-
-
+//End of Boilercode Rumba Communications
+/***************************************/
+//--------------------------------------
+/***************************************/
+//Updates from the data of the Roomba
+//View the Realtime Updates On the monitor
 function updateData(){
 	temp = robot.data.temperature;
 	console.log("Temp:" + robot.data.temperature);
-
-  //console.log("all data test: " + robot.data);
-	//console.log("Charging State:" + robot.data.chargeState);
-
-	// battery data
-	charge = robot.data.charge;
-	//console.log("Current charge:" + robot.data.charge);
-  chargeState = robot.data.chargeState;
-  maxCharge = robot.data.maxCharge;
-  current = robot.data.current;
-  voltage = robot.data.current;
-	// bumper sensors
+	charge = robot.data.charge;//Roomba Battery Data 0 - 2697
+  chargeState = robot.data.chargeState;//State of the Charge
+  maxCharge = robot.data.maxCharge;// 2697
+  current = robot.data.current;// Current Output
+  voltage = robot.data.voltage;// Voltage Output
+	//Roomba Bump Sensors
 	leftBumper = robot.data.bumpLeft;
 	rightBumper = robot.data.bumpRight;
 
-/// ligth bump true false prox sensors
+  //Roomba Light Bump Sensors w/ Boolean Values
+  //(Boolean: True or False)
  	lightBumpLeft = robot.data.lightBumpLeft;
  	lightBumpFrontLeft = robot.data.lightBumpFrontLeft;
 	lightBumpCenterLeft = robot.data.lightBumpCenterLeft;
@@ -209,8 +198,8 @@ function updateData(){
 	lightBumpFrontRight = robot.data.lightBumpFrontRight;
 	lightBumpRight = robot.data.lightBumpRight;
 
-
-	// proximity sensors //0 - 4095
+	// proximity sensors
+  //0 - 4095
 	proxLeft = robot.data.proxLeft;
 	proxFrontLeft = robot.data.proxFrontLeft ;
 	proxCenterLeft = robot.data.proxCenterLeft ;
@@ -218,24 +207,21 @@ function updateData(){
 	proxFrontRight = robot.data.proxFrontRight;
 	proxRight = robot.data.proxRight ;
 
-
   charger = robot.data.charger;
   docked = robot.data.docked;
-
+  //Control Mode: 1 is Auto -- 2 is Semi-Control -- 3 is Total Control
   mode = robot.data.mode;
 
   encoderLeft = robot.data.encoderLeft;
   encoderRight = robot.data.encoderRight;
   console.log(encoderLeft);
 	console.log(encoderRight);
-
 }
-
-// web output stop
-
-// need to add IO
-
-
+//End of the Web Output
+//********************************************
+//-----------TODO need to add IO -------------
+//********************************************
+//Custom Roomba Control Functions
 var create = require('create2');
 var robot, turnRobot, stopTurn;
 
@@ -245,57 +231,61 @@ function start() {
 
 //Main Program:
 function main(r) {
-	robot = r; handleInput(robot);
-
+	robot = r;
+  handleInput(robot);
 	//Enter Full Mode:
 	robot.full(); var run = 1;
-
-	//setTimeout(function(){robot.showText("Hello World!", 500, true)}, 500);
 	//We'll play this song whenever entering user-control:
 	robot.setSong(0, [[72,32],[76,32],[79,32],[72,32]]);
-
 	//Handle First onChange:
 	robot.onChange = function() {
 		if(robot.data.charger || robot.data.docked) { robot.start(); run = 0; }
 		else { /*robot.play(0); */driveLogic(); } robot.onChange = onchange;
-	}
+}
 
 	//Handle onChange Events:
-	function onchange(chg) {
-		if(robot.data.mode == 3 && run == 1) { //FULL mode:
-			//lightBumper is a macro for all light bump sensors (lightBumpLeft, lightBumpRight, etc)
-			//Unfortunately, no similar macro exists for cliff sensors or bumper switches due to the way the data is delivered.
-			if(chg.lightBumper || chg.bumpLeft || chg.bumpRight || chg.dropLeft || chg.dropRight || chg.clean || chg.docked) {
-				driveLogic(); //Run drive logic only when sensor values change.
-			}
-			//Charging Station Detected! Since it's in front of the robot anyway... Start Auto-Docking!
-			if(robot.data.irLeft == 172 || robot.data.irRight == 172) {
-				robot.drive(0,0); run = -1; robot.showText("SEEK", 500, false, robot.autoDock);
-			}
-		} else if(robot.data.mode == 1) { //PASSIVE mode:
-			if(chg.clean && robot.data.clean) { //Clean Pressed:
-				if(robot.data.docked) robot.clean(); //Start backing up if clean pressed while docked.
-				else preventDefault(function(){run = 1; driveLogic()}); //Prevent default.
-			}
-			if(chg.docked && robot.data.docked) { //Robot Docked:
-				setUndock(0); robot.full(); robot.showText("DOCK", 500, false, robot.start);
-			} else if(chg.docked/* && !robot.data.charger*/ && !robot.data.docked) { //Robot Undocked:
-				setUndock(1);
-			} else if(chg.dropLeft || chg.dropRight) { //Docking Interrupted:
-				if(run == -1) {robot.full();robot.showText("RST", 500, false, robot.autoDock)}
-				//else setUndock(1);
-			}
-		}
+function onchange(chg) {
+	if(robot.data.mode == 3 && run == 1) {//If Mode for 3 (Full Control)
+		fullControl();
+	} else if(robot.data.mode == 1) { //If Mode for 1 (Passive Control)
+		passiveControl();
 	}
+}
 
-	//Logic to Start and Stop Moving Robot:
-	function driveLogic() {
-		//We're in user-control (FULL mode) and can control the robot. (Your main program would be here!)
-		if(robot.data.lightBumper || robot.data.bumpLeft || robot.data.bumpRight) robot.driveSpeed(0,0); //Disable motors.
-		else robot.driveSpeed(robot.data.dropLeft?0:0,robot.data.dropRight?0:0); //Enable motors if wheels are up.
-		if(robot.data.clean || robot.data.docked) {robot.driveSpeed(0,0);robot.start()} //Back to PASSIVE mode.
-		// this is where our output data could be.
-		updateData();
+function fullControl(){//Mode 3 (Full Control)
+  if(chg.lightBumper || chg.bumpLeft || chg.bumpRight || chg.dropLeft || chg.dropRight || chg.clean || chg.docked) {/*NOTE: lightBumper is a macro for all light bump sensors (lightBumpLeft, lightBumpRight, etc)*/
+    //If Sensor Values Change...
+    driveLogic(); //Run Drive Logic
+  }
+  if(robot.data.irLeft == 172 || robot.data.irRight == 172) {//Charging Station Detected! Start Auto-Docking!
+    robot.drive(0,0); run = -1; robot.showText("SEEK", 500, false, robot.autoDock);
+  }
+}
+
+function passiveControl(){//Mode 1 (Passive Control)
+  if(chg.clean && robot.data.clean) { //Clean Pressed:
+    if(robot.data.docked) robot.clean(); //Start backing up if clean pressed while docked.
+    else preventDefault(function(){run = 1; driveLogic()}); //Prevent default.
+  }
+  if(chg.docked && robot.data.docked) {
+    //If the Robot is Docked...
+    setUndock(0);
+    robot.full();
+    robot.showText("DOCK", 500, false, robot.start);
+  } else if(chg.docked/* && !robot.data.charger*/ && !robot.data.docked) {
+    //If the Robot is Undocked...
+    setUndock(1);
+  } else if(chg.dropLeft || chg.dropRight) {
+    //If the Docking is Interrupted...
+    if(run == -1) {robot.full();robot.showText("RST", 500, false, robot.autoDock)}
+  }
+}
+
+	function driveLogic() {//Logic to Start and Stop Moving Robot: (FULL CONTROL)
+		if(robot.data.lightBumper || robot.data.bumpLeft || robot.data.bumpRight) robot.driveSpeed(0,0); //Disable motors if bump
+		else robot.driveSpeed(robot.data.dropLeft?0:0,robot.data.dropRight?0:0); //Enable motors if wheels are ready
+		if(robot.data.clean || robot.data.docked) {robot.driveSpeed(0,0);robot.start()} //Switch to mode 1 (Passive Control)
+		updateData();//Output Data
 	}
 
 	//Enable and disable undocking timer:
@@ -310,16 +300,17 @@ function main(r) {
 	//Turns robot when 't' is pressed:
 	var drRun = 0, drAngle = 0;
 	turnRobot = function() {
-		if(robot.data.mode == 3 && drRun) { //If already turning:
+		if(robot.data.mode == 3 && drRun) {
+      //If already turning...
 			run = 0; if(drAngle) drAngle = 0; else //Set desired angle to original angle.
 			drAngle = (robot.motorRad==1)?64:-64; //Continue in current motor direction.
 			robot.drive(100, (drAngle-angle<0)?-1:1); drRun = 1;
-		} else if(robot.data.mode == 3 && run == 1) { //Start new turn in opposite direction:
-			run = 0; drAngle = drAngle<0?64:-64; angle = 0; drRun = 1;
+		} else if(robot.data.mode == 3 && run == 1) {
+      //If not already turning...
+			run = 0; drAngle = drAngle<0?64:-64; angle = 0; drRun = 1;//Start new turn in opposite direction:
 			robot.drive(100, (drAngle-angle<0)?-1:1);
 		}
 	}
-
 
 	var angle = 0; //Count Angle Changes Using Encoders:
 	robot.onMotion = function() {
@@ -329,12 +320,16 @@ function main(r) {
 		<= drAngle)) && drRun) { drRun = 0; run = 1; driveLogic(); }
 	}
 
-	//Prevent Default Behavior of Buttons in Passive Mode:
-	function preventDefault(func) {
+	//Prevent Default Behavior of Buttons in Passive Control Mode:
+	function preventDefault(func) {//In mode 1
 		setTimeout(function(){robot.full();if(func)setTimeout(func,500)},1400);
 	}
 }
-
+//End of Robot Control Functions
+/***************************************/
+//--------------------------------------
+/***************************************/
+//User Robot Controls
 function handleInput(robot) {
 	//Process user input, quit on 'exit'
 	const rl = require('readline').createInterface
@@ -343,7 +338,7 @@ function handleInput(robot) {
 		if(text == "exit" || text == "quit") {
 			console.log("Exiting..."); process.exit();
 		} else if(text == "t") {
-			turnRobot(); //Turn Robot.
+			turnRobot(); //Turn Robot
 		} else if(text == "s") {
 			stop(); //Stop Turning.
 		} else if(text == "stop") {
