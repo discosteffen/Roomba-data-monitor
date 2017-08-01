@@ -393,14 +393,14 @@ function handleInput(robot) {
         } else if (text == "s" || text == "stop") {
             stop(); //Stop
         } else if (text == "w") {
-            forward(); //  w + [Enter] = Move Forward
+            forward(); //  'w' + [Enter] = Move Forward
         } else if (text == "x") {
-            backward(); // x + [Enter] = Move Backwards
+            backward(); // 'x' + [Enter] = Move Backwards
         } else if (text == "a") {
-            turnLeft(); // a + [Enter] = Turn Left
+            turnLeft(); // 'a' + [Enter] = Turn Left
         } else if (text == "d") {
-            turnRight(); // d + [Enter] = Turn Right
-        } else if (text == "track") {// Roomba Follows and Tracks Color
+            turnRight(); // 'd' + [Enter] = Turn Right
+        } else if (text == "track") {// 'track' + [Enter] = Follow / Track Color
             track();
             //	setTimeout(function(){ballfollow()},i * 1000);
         } else if (text == "wander") {
