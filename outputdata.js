@@ -390,23 +390,18 @@ function handleInput(robot) {
         if (text == "exit" || text == "quit") {
             console.log("Exiting...");
             process.exit();
-        } else if (text == "t") {
-            turnRobot(); //Turn Robot
-        } else if (text == "s") {
-            stop(); //Stop Turning.
-        } else if (text == "stop") {
-            stop(); //Turn Robot.
+        } else if (text == "s" || text == "stop") {
+            stop(); //Stop
         } else if (text == "w") {
-            forward(); //Turn Robot.
+            forward(); //  w + [Enter] = Move Forward
         } else if (text == "x") {
-            backward(); //Turn Robot.
+            backward(); // x + [Enter] = Move Backwards
         } else if (text == "a") {
-            turnLeft(); //Turn Robot.
+            turnLeft(); // A + [Enter] = Turn Left
         } else if (text == "d") {
-            turnRight(); //Turn Robot.
-        } else if (text == "ball") {
+            turnRight(); // D + [Enter] = Turn Right
+        } else if (text == "track") {// Roomba Follows and Tracks Color
             action();
-
             //	setTimeout(function(){ballfollow()},i * 1000);
         } else if (text == "wander") {
             setTimeout(function() {
@@ -461,9 +456,8 @@ stop = function() {
     robot.driveSpeed(0, 0);
 }
 
-
 ballfollow = function() {
-    if (x2 <= 150) {
+    if (x2 <= 150) { // X2 = Tracked
         robot.driveSpeed(-50, 50);
     } else if (x2 >= 450) {
         robot.driveSpeed(50, -50);
@@ -471,7 +465,5 @@ ballfollow = function() {
         robot.driveSpeed(0, 0);
     }
 }
-
-
 
 start();
