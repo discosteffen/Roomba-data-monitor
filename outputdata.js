@@ -84,7 +84,7 @@ var encoderRight = 0; //Read the turns in the wheels
 var mode = 0; //Control Mode: 1 is Auto -- 2 is Semi-Control -- 3 is Total Control
 var drivestate = 1; //Roomba Drivestate
 var timeout = 1000; //Constant integer timeout
-var action = function() {
+var track = function() {
     if (x2 <= 150) {
         robot.driveSpeed(-50, 50);
     } else if (x2 >= 450) {
@@ -92,7 +92,7 @@ var action = function() {
     } else {
         robot.driveSpeed(50, 50);
     }
-    setTimeout(action, timeout)
+    setTimeout(track, timeout)
 
 }
 //End of Variable Declarations
@@ -397,11 +397,11 @@ function handleInput(robot) {
         } else if (text == "x") {
             backward(); // x + [Enter] = Move Backwards
         } else if (text == "a") {
-            turnLeft(); // A + [Enter] = Turn Left
+            turnLeft(); // a + [Enter] = Turn Left
         } else if (text == "d") {
-            turnRight(); // D + [Enter] = Turn Right
+            turnRight(); // d + [Enter] = Turn Right
         } else if (text == "track") {// Roomba Follows and Tracks Color
-            action();
+            track();
             //	setTimeout(function(){ballfollow()},i * 1000);
         } else if (text == "wander") {
             setTimeout(function() {
