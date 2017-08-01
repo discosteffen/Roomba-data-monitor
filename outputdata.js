@@ -93,7 +93,6 @@ var track = function() {
         robot.driveSpeed(50, 50);
     }
     setTimeout(track, timeout)
-
 }
 //End of Variable Declarations
 /***************************************/
@@ -402,7 +401,6 @@ function handleInput(robot) {
             turnRight(); // 'd' + [Enter] = Turn Right
         } else if (text == "track") {// 'track' + [Enter] = Follow / Track Color
             track();
-            //	setTimeout(function(){ballfollow()},i * 1000);
         } else if (text == "wander") {
             setTimeout(function() {
                 robot.driveSpeed(100, 100)
@@ -454,16 +452,6 @@ stop = function() {
     motorLeft = 0;
     motorRight = 0;
     robot.driveSpeed(0, 0);
-}
-
-ballfollow = function() {
-    if (x2 <= 150) { // X2 = Tracked
-        robot.driveSpeed(-50, 50);
-    } else if (x2 >= 450) {
-        robot.driveSpeed(50, -50);
-    } else {
-        robot.driveSpeed(0, 0);
-    }
 }
 
 start();
