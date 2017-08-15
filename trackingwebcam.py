@@ -62,9 +62,9 @@ rangeMax = np.array([Hmax, Smax, Vmax], np.uint8)
 # Área mínima á ser detectada
 minArea = 50
 
-cv.NamedWindow("Entrada")
-cv.NamedWindow("HSV")
-cv.NamedWindow("Thre")
+#cv.NamedWindow("Entrada")
+#cv.NamedWindow("HSV")
+#cv.NamedWindow("Thre")
 cv.NamedWindow("Erosao")
 
 def main():
@@ -97,9 +97,9 @@ def main():
            print (x, y)
            sys.stdout.flush()
 
-        cv2.imshow("Entrada",entrada)
-        cv2.imshow("HSV", imgHSV)
-        cv2.imshow("Thre", imgThresh)
+#        cv2.imshow("Entrada",entrada)
+#        cv2.imshow("HSV", imgHSV)
+#        cv2.imshow("Thre", imgThresh)
         cv2.imshow("Erosao", imgErode)
 
         if cv.WaitKey(10) == 27:

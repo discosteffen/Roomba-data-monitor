@@ -268,7 +268,7 @@ function main(r) {
 
 		    //Charging Station Detected! Since it's in front of the robot anyway... Start Auto-Docking!
 		    // if battery is low start docking
-		if(charge <= 2295)/*&&(robot.data.irLeft == 172 || robot.data.irRight == 172))*/
+		if(charge <= 500)/*&&(robot.data.irLeft == 172 || robot.data.irRight == 172))*/
 		   {
 				robot.drive(0,0); run = -1; robot.showText("SEEK", 500, false, robot.autoDock);
 			}
@@ -369,7 +369,11 @@ function handleInput(robot) {
 		    mode = 3;
 		} else if(text == "mode1"){
 		    mode = 1;
+		} else if(text == "dock"){
+		    robot.drive(0,0); run = -1; robot.showText("SEEK", 500, false, robot.autoDock);
+		    
 		}
+	    
 	    
 	});
 }
