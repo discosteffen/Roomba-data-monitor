@@ -11,7 +11,7 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var spawn = require('child_process').spawn,
-    ls    = spawn('python',['tracking.py']);
+    ls    = spawn('python',['trackingwebcam.py']);
 
 // image variables
 var x;
@@ -81,13 +81,13 @@ var mode = 0;
 
 var drivestate = 1;
 
-var timeout = 1000;
+var timeout = 250;
 var action = function(){
-    if(x2 <= 150){
-	robot.driveSpeed(-50,50);
+    if(x2 <= 100){
+	robot.driveSpeed(0,50);
     }
-    else if(x2 >= 450){
-	robot.driveSpeed(50,-50);
+    else if(x2 >= 380){
+	robot.driveSpeed(50,0);
     }
     else {
 	robot.driveSpeed(50,50);
@@ -96,11 +96,6 @@ var action = function(){
 
 }
 
-/*app.get('/', function(req, res){
-  res.sendfile('App.html');
-  console.log('HTML sent to client');
-});
-*/
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/App.html');
@@ -140,8 +135,8 @@ io.on('connection', function (socket) { // Notify for a new connection and pass 
 //        console.log('emit new value', rightBumper);
 				socket.emit('temp', temp); // Emit on the opened socket.
         socket.emit('rBump', rightBumper); // Emit on the opened socket.
-				socket.emit('lBump', leftBumper); // Emit on the opened socket.
-				socket.emit('lightBumpLeft', lightBumpLeft); // Emit on the opened socket.
+	socket.emit('lBump', leftBumper); // Emit on the opened socket.
+	socket.emit('lightBumpLeft', lightBumpLeft); // Emit on the opened socket.
 				socket.emit('lightBumpFrontLeft', lightBumpFrontLeft); // Emit on the opened socket.
 				socket.emit('lightBumpCenterLeft', lightBumpCenterLeft); // Emit on the opened socket.
 				socket.emit('lightBumpCenterRight', lightBumpCenterRight); // Emit on the opened socket.
@@ -167,17 +162,6 @@ io.on('connection', function (socket) { // Notify for a new connection and pass 
 });
 
 
-
-// temperature
-/*io.on('connection', function (socket) { // Notify for a new connection and pass the socket as parameter.
-    console.log('new connection');
-    setInterval(function () {
-//        console.log('new temp', temp);
-        socket.emit('temp', temp); // Emit on the opened socket.
-    }, 1000);
-});*/
-
-
 http.listen(3000, function(){
   console.log('listening on *:3000');
 });
@@ -191,17 +175,24 @@ function updateData(){
 	//console.log("Charging State:" + robot.data.chargeState);
 
 	// battery data
-	charge = robot.data.charge;
-	//console.log("Current charge:" + robot.data.charge);
-  chargeState = robot.data.chargeState;
-  maxCharge = robot.data.maxCharge;
-  current = robot.data.current;
-  voltage = robot.data.current;
+    charge = robot.data.charge;
+    if(charge > maxCharge){
+	console.log("Fully charged")
+    }
+    else{
+	console.log("Charging")
+    }
+    
+    //console.log("Current charge:" + robot.data.charge);
+    chargeState = robot.data.chargeState;
+    maxCharge = robot.data.maxCharge;
+    current = robot.data.current;
+    voltage = robot.data.current;
 	// bumper sensors
 	leftBumper = robot.data.bumpLeft;
 	rightBumper = robot.data.bumpRight;
 
-/// ligth bump true false prox sensors
+    /// ligth bump true false prox sensors
  	lightBumpLeft = robot.data.lightBumpLeft;
  	lightBumpFrontLeft = robot.data.lightBumpFrontLeft;
 	lightBumpCenterLeft = robot.data.lightBumpCenterLeft;
@@ -262,14 +253,23 @@ function main(r) {
 
 	//Handle onChange Events:
 	function onchange(chg) {
-		if(robot.data.mode == 3 && run == 1) { //FULL mode:
+/*	    if(robot.data.mode == 1 && charge >= 2650){
+		robot.data.mode = 3;
+//		robot.drive(-100, -100); drRun = 1;		
+		console.log("undock")
+	    }
+*/
+	    if(robot.data.mode == 3 && run == 1) { //FULL mode:
 			//lightBumper is a macro for all light bump sensors (lightBumpLeft, lightBumpRight, etc)
 			//Unfortunately, no similar macro exists for cliff sensors or bumper switches due to the way the data is delivered.
 			if(chg.lightBumper || chg.bumpLeft || chg.bumpRight || chg.dropLeft || chg.dropRight || chg.clean || chg.docked) {
 				driveLogic(); //Run drive logic only when sensor values change.
 			}
-			//Charging Station Detected! Since it's in front of the robot anyway... Start Auto-Docking!
-			if(robot.data.irLeft == 172 || robot.data.irRight == 172) {
+
+		    //Charging Station Detected! Since it's in front of the robot anyway... Start Auto-Docking!
+		    // if battery is low start docking
+		if(charge <= 2295)/*&&(robot.data.irLeft == 172 || robot.data.irRight == 172))*/
+		   {
 				robot.drive(0,0); run = -1; robot.showText("SEEK", 500, false, robot.autoDock);
 			}
 		} else if(robot.data.mode == 1) { //PASSIVE mode:
@@ -356,15 +356,21 @@ function handleInput(robot) {
 			turnLeft(); //Turn Robot.
 		} else if(text == "d") {
 			turnRight(); //Turn Robot.
-    } else if(text == "ball") {
-	action();
+		} else if(text == "ball") {
+		    action();
 
 //	setTimeout(function(){ballfollow()},i * 1000);
-    } else if(text == "wander") {
-      setTimeout(function(){robot.driveSpeed(100,100)},0);
-      setTimeout(function(){robot.driveSpeed(-100,-100)},2500);
+		} else if(text == "wander") {
+		    setTimeout(function(){robot.driveSpeed(100,100)},0);
+		    setTimeout(function(){robot.driveSpeed(-100,-100)},2500);
 
-    }
+		} else if(text == "undock"){
+		    //undock();
+		    mode = 3;
+		} else if(text == "mode1"){
+		    mode = 1;
+		}
+	    
 	});
 }
 
@@ -405,6 +411,13 @@ stop = function(){
   motorLeft = 0;
   motorRight = 0;
   robot.driveSpeed(0,0);
+}
+
+undock = function(){
+    console.log("undocking");
+//    robot.full(); var run = 1;    
+    robot.data.mode = 3;
+    run = 1;
 }
 
 
